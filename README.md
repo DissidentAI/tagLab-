@@ -739,6 +739,20 @@ If the project is useful, a GitHub star helps other artists and developers disco
 
 [![Star tagLab](https://img.shields.io/github/stars/DissidentAI/tagLab-?style=for-the-badge&logo=github&label=STAR%20TAGLAB)](https://github.com/DissidentAI/tagLab-/stargazers)
 
+### ₿ Bitcoin donations
+
+If you want to support the development of **tagLab** financially, Bitcoin donations are welcome.
+
+**BTC address — Bitcoin mainnet (Bech32):**
+
+```text
+bc1qatwfmej0yf8lwf7nnzp2g2kh4gfuh6qwenm54w
+```
+
+[![Donate Bitcoin](https://img.shields.io/badge/Donate-Bitcoin-F7931A?style=for-the-badge&logo=bitcoin&logoColor=white)](https://mempool.space/address/bc1qatwfmej0yf8lwf7nnzp2g2kh4gfuh6qwenm54w)
+
+> **Please send BTC only on the Bitcoin network and verify the address before confirming the transaction.**
+
 **Build a cleaner metadata workflow · Understand your track · Publish faster**
 
 [⭐ Star](https://github.com/DissidentAI/tagLab-/stargazers) · [🐛 Issues](https://github.com/DissidentAI/tagLab-/issues) · [🍴 Fork](https://github.com/DissidentAI/tagLab-/fork)
