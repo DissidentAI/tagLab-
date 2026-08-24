@@ -1,0 +1,6 @@
+{
+  "name": "Master Tags Music & AI Generator",
+  "description": "Bibliothèque Master Tags Rap FR / Plug / Underground, générateur IA multi-plateformes (YouTube, TikTok, SoundCloud, Instagram, Snapchat), analyseur audio et paroles.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
