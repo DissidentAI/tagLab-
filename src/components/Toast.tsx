@@ -25,7 +25,7 @@ export const ToastContainer: React.FC<ToastProps> = ({ toasts, onDismiss }) => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className={`pointer-events-auto p-4 rounded-xl border shadow-lg flex items-start gap-3 bg-white border-slate-200 text-slate-900 ${
+            className={`pointer-events-auto p-4 rounded-xl border shadow-lg flex items-start gap-3 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 ${
               toast.type === 'success'
                 ? 'border-l-4 border-l-emerald-500'
                 : toast.type === 'error'
@@ -34,21 +34,21 @@ export const ToastContainer: React.FC<ToastProps> = ({ toasts, onDismiss }) => {
             }`}
           >
             <div className="mt-0.5 shrink-0">
-              {toast.type === 'success' && <CheckCircle2 className="w-5 h-5 text-emerald-600" />}
-              {toast.type === 'error' && <AlertCircle className="w-5 h-5 text-rose-600" />}
-              {toast.type === 'info' && <Info className="w-5 h-5 text-indigo-600" />}
+              {toast.type === 'success' && <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />}
+              {toast.type === 'error' && <AlertCircle className="w-5 h-5 text-rose-600 dark:text-rose-400" />}
+              {toast.type === 'info' && <Info className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />}
             </div>
 
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-slate-900 tracking-tight">{toast.title}</p>
+              <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 tracking-tight">{toast.title}</p>
               {toast.message && (
-                <p className="text-xs text-slate-500 mt-0.5 leading-relaxed break-words">{toast.message}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed break-words">{toast.message}</p>
               )}
             </div>
 
             <button
               onClick={() => onDismiss(toast.id)}
-              className="text-slate-400 hover:text-slate-700 transition-colors p-1 -mr-1 -mt-1 rounded-lg hover:bg-slate-100"
+              className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors p-1 -mr-1 -mt-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
             >
               <X className="w-4 h-4" />
             </button>

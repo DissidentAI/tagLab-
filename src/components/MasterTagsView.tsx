@@ -4,15 +4,17 @@ import {
   Copy, 
   Check, 
   Plus, 
-  Layers, 
-  Sparkles, 
-  SlidersHorizontal,
-  Hash,
-  ExternalLink,
-  Flame
+  Flame,
+  FileSpreadsheet,
+  Youtube,
+  Instagram,
+  Sparkles,
+  Layers
 } from 'lucide-react';
 import { MASTER_CATEGORIES, TOTAL_UNIQUE_TAGS, formatTag, formatTagsList } from '../data/masterTags';
-import { TagCategory } from '../types';
+import { TagCategory, SeoPlatformMode } from '../types';
+import { TagTooltip } from './TagTooltip';
+import { downloadTagsCsv } from '../utils/csvExport';
 
 interface MasterTagsViewProps {
   artistName: string;
@@ -37,6 +39,7 @@ export const MasterTagsView: React.FC<MasterTagsViewProps> = ({
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('all');
   const [copiedCategoryId, setCopiedCategoryId] = useState<string | null>(null);
   const [copiedAll, setCopiedAll] = useState(false);
+  const [seoPlatformMode, setSeoPlatformMode] = useState<SeoPlatformMode>('both');
 
   // Filtered categories and tags based on search query
   const filteredCategories = useMemo(() => {
@@ -94,35 +97,37 @@ export const MasterTagsView: React.FC<MasterTagsViewProps> = ({
     setTimeout(() => setCopiedAll(false), 2500);
   };
 
+  const handleExportAllCsv = () => {
+    const tagsToExport = searchQuery.trim() || selectedCategoryId !== 'all'
+      ? filteredCategories.flatMap(c => c.tags)
+      : allTagsList;
+
+    downloadTagsCsv(tagsToExport, artistName, trackName, 'master-tags-database');
+    onCopySuccess('', `${tagsToExport.length} tags exportés en fichier CSV (tableur Excel / Sheets) !`);
+  };
+
   const handleAddAllCategoryToBasket = (category: TagCategory) => {
     onAddTags(category.tags);
     onCopySuccess('', `${category.tags.length} tags de "${category.name}" ajoutés au panier.`);
   };
 
-  const handleCopyIndividualTag = (e: React.MouseEvent, tag: string) => {
-    e.stopPropagation();
-    const formatted = formatTag(tag, artistName, trackName);
-    navigator.clipboard.writeText(formatted);
-    onCopySuccess(formatted, `Tag "${formatted}" copié !`);
-  };
-
   return (
     <div className="space-y-6">
       {/* Top Banner & Fast Actions */}
-      <div className="relative rounded-xl bg-white p-5 sm:p-6 border border-slate-200 shadow-sm overflow-hidden">
+      <div className="relative rounded-xl bg-white dark:bg-slate-900 p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden transition-colors">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
           <div className="space-y-1.5 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-semibold">
-              <Flame className="w-3.5 h-3.5 text-indigo-600" />
+            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 text-xs font-semibold">
+              <Flame className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
               <span>Base Master SEO 2026</span>
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
               <span>{TOTAL_UNIQUE_TAGS} Tags uniques</span>
             </div>
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
               Bibliothèque Master Tags Rap FR & Plug
             </h2>
-            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              Sélectionnez, filtrez et copiez les tags idéaux pour YouTube, SoundCloud et les réseaux. Remplacement automatique du nom d'artiste et du titre du morceau.
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+              Survolez les tags pour afficher les <strong>infobulles SEO dynamiques</strong> (YouTube Studio vs Instagram). Sélectionnez, filtrez et exportez en CSV ou texte en un clic.
             </p>
           </div>
 
@@ -151,34 +156,95 @@ export const MasterTagsView: React.FC<MasterTagsViewProps> = ({
             </button>
 
             <button
-              onClick={() => onAddTags(allTagsList)}
-              className="px-3.5 py-2.5 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-2xs"
+              id="export-csv-master-btn"
+              onClick={handleExportAllCsv}
+              className="px-3.5 py-2.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-2xs"
+              title="Exporter les mots-clés sous forme de tableur CSV pour base de données hors-ligne"
             >
-              <Plus className="w-4 h-4 text-indigo-600" />
+              <FileSpreadsheet className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <span>Exporter CSV</span>
+            </button>
+
+            <button
+              onClick={() => onAddTags(allTagsList)}
+              className="px-3.5 py-2.5 rounded-lg bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-750 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-2xs"
+            >
+              <Plus className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
               <span>Tout au Panier</span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* Search & Filter Controls */}
+      {/* SEO Platform Focus Selector & Search Controls */}
       <div className="space-y-3">
+        {/* SEO Platform Mode Toggle Bar */}
+        <div className="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+            <span className="text-xs font-bold text-slate-900 dark:text-slate-100">
+              Infobulles SEO Actives :
+            </span>
+          </div>
+
+          <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
+            <button
+              id="seo-mode-both"
+              onClick={() => setSeoPlatformMode('both')}
+              className={`px-2.5 py-1 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                seoPlatformMode === 'both'
+                  ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <Layers className="w-3.5 h-3.5" />
+              <span>Tous Conseils</span>
+            </button>
+
+            <button
+              id="seo-mode-youtube"
+              onClick={() => setSeoPlatformMode('youtube')}
+              className={`px-2.5 py-1 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                seoPlatformMode === 'youtube'
+                  ? 'bg-rose-600 text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400'
+              }`}
+            >
+              <Youtube className="w-3.5 h-3.5" />
+              <span>Focus YouTube</span>
+            </button>
+
+            <button
+              id="seo-mode-instagram"
+              onClick={() => setSeoPlatformMode('instagram')}
+              className={`px-2.5 py-1 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                seoPlatformMode === 'instagram'
+                  ? 'bg-pink-600 text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-pink-600 dark:hover:text-pink-400'
+              }`}
+            >
+              <Instagram className="w-3.5 h-3.5" />
+              <span>Focus Instagram</span>
+            </button>
+          </div>
+        </div>
+
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           {/* Search Input */}
           <div className="relative flex-1">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <Search className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               id="search-master-tags"
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Rechercher parmi les 549 tags (ex: pluggnb, 808, mélodique, 2026, nuit, autotune...)"
-              className="w-full pl-10 pr-10 py-2.5 bg-white text-sm text-slate-900 placeholder-slate-400 rounded-lg border border-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors shadow-2xs font-medium"
+              className="w-full pl-10 pr-10 py-2.5 bg-white dark:bg-slate-850 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 rounded-lg border border-slate-200 dark:border-slate-800 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors shadow-2xs font-medium"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 hover:text-slate-600 p-1"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 p-1"
               >
                 Effacer
               </button>
@@ -186,12 +252,12 @@ export const MasterTagsView: React.FC<MasterTagsViewProps> = ({
           </div>
 
           {/* Matches Count Pill */}
-          <div className="flex items-center justify-between sm:justify-end gap-2 text-xs font-semibold text-slate-500 px-1">
+          <div className="flex items-center justify-between sm:justify-end gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400 px-1">
             <span>{matchingTagsCount} tags affichés</span>
             {selectedTags.length > 0 && (
               <button
                 onClick={onOpenBasket}
-                className="text-indigo-600 hover:text-indigo-700 underline underline-offset-2 font-bold"
+                className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 underline underline-offset-2 font-bold"
               >
                 ({selectedTags.length} dans le panier)
               </button>
@@ -206,7 +272,7 @@ export const MasterTagsView: React.FC<MasterTagsViewProps> = ({
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold shrink-0 transition-all ${
               selectedCategoryId === 'all'
                 ? 'bg-indigo-600 text-white shadow-sm'
-                : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200 hover:bg-slate-50'
+                : 'bg-white dark:bg-slate-850 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
             }`}
           >
             Toutes les Catégories ({MASTER_CATEGORIES.length})
@@ -219,7 +285,7 @@ export const MasterTagsView: React.FC<MasterTagsViewProps> = ({
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold shrink-0 transition-all ${
                 selectedCategoryId === cat.id
                   ? 'bg-indigo-600 text-white shadow-sm'
-                  : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200 hover:bg-slate-50'
+                  : 'bg-white dark:bg-slate-850 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
               }`}
             >
               {cat.name.split('/')[0].trim()} ({cat.tags.length})
@@ -230,18 +296,18 @@ export const MasterTagsView: React.FC<MasterTagsViewProps> = ({
 
       {/* Categories Grid */}
       {filteredCategories.length === 0 ? (
-        <div className="text-center py-16 bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-          <Search className="w-10 h-10 text-slate-400 mx-auto mb-3" />
-          <h3 className="text-base font-bold text-slate-800 mb-1">Aucun tag trouvé</h3>
-          <p className="text-xs text-slate-500 max-w-sm mx-auto mb-4">
-            Aucun tag ne correspond à votre recherche &quot;{searchQuery}&quot;. Essayez d'autres mots-clés ou réinitialisez le filtre.
+        <div className="text-center py-16 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
+          <Search className="w-10 h-10 text-slate-400 dark:text-slate-600 mx-auto mb-3" />
+          <h3 className="text-base font-bold text-slate-800 dark:text-slate-200 mb-1">Aucun tag trouvé</h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto mb-4">
+            Aucun tag ne correspond à votre recherche &quot;{searchQuery}&quot;. Essayez d&apos;autres mots-clés ou réinitialisez le filtre.
           </p>
           <button
             onClick={() => {
               setSearchQuery('');
               setSelectedCategoryId('all');
             }}
-            className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded-lg transition-colors shadow-sm"
+            className="px-4 py-2 bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white text-xs font-semibold rounded-lg transition-colors shadow-sm"
           >
             Réinitialiser les filtres
           </button>
@@ -256,21 +322,21 @@ export const MasterTagsView: React.FC<MasterTagsViewProps> = ({
               <div
                 key={category.id}
                 id={`category-${category.id}`}
-                className="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-sm hover:border-slate-300 transition-colors"
+                className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 sm:p-5 shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition-colors"
               >
                 {/* Category Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 mb-3.5 border-b border-slate-100">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 mb-3.5 border-b border-slate-100 dark:border-slate-800">
                   <div className="space-y-0.5">
                     <div className="flex items-center gap-2">
-                      <h3 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
+                      <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100 tracking-tight">
                         {category.name}
                       </h3>
-                      <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
+                      <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
                         {category.tags.length} tags
                       </span>
                     </div>
                     {category.description && (
-                      <p className="text-xs text-slate-500">{category.description}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">{category.description}</p>
                     )}
                   </div>
 
@@ -281,7 +347,7 @@ export const MasterTagsView: React.FC<MasterTagsViewProps> = ({
                       className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow-2xs ${
                         isCategoryCopied
                           ? 'bg-emerald-600 text-white'
-                          : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200'
+                          : 'bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700'
                       }`}
                     >
                       {isCategoryCopied ? (
@@ -291,7 +357,7 @@ export const MasterTagsView: React.FC<MasterTagsViewProps> = ({
                         </>
                       ) : (
                         <>
-                          <Copy className="w-3.5 h-3.5 text-slate-400" />
+                          <Copy className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
                           <span>Copier ({category.tags.length})</span>
                         </>
                       )}
@@ -301,48 +367,33 @@ export const MasterTagsView: React.FC<MasterTagsViewProps> = ({
                       onClick={() => handleAddAllCategoryToBasket(category)}
                       className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow-2xs ${
                         categoryAllInBasket
-                          ? 'bg-indigo-50 text-indigo-700 border border-indigo-200'
-                          : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200'
+                          ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800'
+                          : 'bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700'
                       }`}
                     >
-                      <Plus className="w-3.5 h-3.5 text-indigo-600" />
+                      <Plus className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
                       <span>{categoryAllInBasket ? 'Déjà au panier' : '+ Panier'}</span>
                     </button>
                   </div>
                 </div>
 
-                {/* Tags Grid */}
+                {/* Tags Grid with Rich SEO Tooltips */}
                 <div className="flex flex-wrap gap-2">
                   {category.tags.map((rawTag, tagIndex) => {
-                    const formatted = formatTag(rawTag, artistName, trackName);
                     const isSelected = selectedTags.includes(rawTag);
 
                     return (
-                      <div
+                      <TagTooltip
                         key={`${category.id}-${tagIndex}`}
-                        onClick={() => onToggleTag(rawTag)}
-                        title="Cliquez pour ajouter/retirer du panier ou utilisez le bouton copier"
-                        className={`group relative inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all border select-none ${
-                          isSelected
-                            ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
-                            : 'bg-slate-50 hover:bg-slate-100 text-slate-700 hover:text-slate-900 border-slate-200'
-                        }`}
-                      >
-                        <span className="font-mono text-xs">{formatted}</span>
-
-                        {/* Direct copy icon on hover */}
-                        <button
-                          onClick={(e) => handleCopyIndividualTag(e, rawTag)}
-                          title="Copier ce tag seul"
-                          className={`p-0.5 rounded transition-colors ${
-                            isSelected
-                              ? 'text-indigo-200 hover:text-white hover:bg-indigo-700'
-                              : 'text-slate-400 hover:text-slate-700 hover:bg-slate-200'
-                          }`}
-                        >
-                          <Copy className="w-3 h-3" />
-                        </button>
-                      </div>
+                        rawTag={rawTag}
+                        artistName={artistName}
+                        trackName={trackName}
+                        isSelected={isSelected}
+                        categoryName={category.name}
+                        platformMode={seoPlatformMode}
+                        onToggle={() => onToggleTag(rawTag)}
+                        onCopy={(text) => onCopySuccess(text, `Tag "${text}" copié !`)}
+                      />
                     );
                   })}
                 </div>

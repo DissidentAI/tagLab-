@@ -1,6 +1,6 @@
 {
-  "name": "Master Tags Music & AI Generator",
-  "description": "Bibliothèque Master Tags Rap FR / Plug / Underground, générateur IA multi-plateformes (YouTube, TikTok, SoundCloud, Instagram, Snapchat), analyseur audio et paroles.",
+  "name": "tagLab",
+  "description": "tagLab — Bibliothèque de Master Tags Rap FR / Plug, analyseur de score SEO YouTube & Instagram, mode génération IA continue, jauges de caractères et export multiplateformes.",
   "requestFramePermissions": ["microphone"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
